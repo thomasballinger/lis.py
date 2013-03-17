@@ -65,8 +65,22 @@ def parse_tokens(tokens, index):
 
 # EVALUATOR ============================
 
+def lookup_in_env(var, env):
+    for name, val in env:
+        if var == name:
+            return val
+    raise Exception('unrecognized variable name')
+
+
 def eval_in_env(exp, env):
-    pass
+    if type(exp) == Const:
+        return exp
+    elif type(exp) == Plus:
+        return Const(eval_in_env(exp.exp1, env).val
+                     + eval_in_env(exp.exp2, env).val)
+    elif type(exp) == Variable:
+        return eval_in_env(lookup_in_env(exp.name, env), env)
+
 
 # RUN INTERPRETER ======================
 
