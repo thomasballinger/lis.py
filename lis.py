@@ -27,7 +27,8 @@ def tokenize(lines):
 # COMPONENTS ===========================
 
 Define = namedtuple('Define', 'name exp')
-Function = namedtuple('Function', 'body')
+Lambda = namedtuple('Lambda', 'args body')
+Closure = namedtuple('Closure', 'env body')
 Plus = namedtuple('Plus', 'exp1 exp2')
 Const = namedtuple('Const', 'val')
 Variable = namedtuple('Variable', 'name')
@@ -36,6 +37,18 @@ Main = namedtuple('Main', 'exp')
 
 
 # PARSER ===============================
+
+def get_list(tokens, index):
+    if tokens[index] != '(':
+        raise Exception('"(" expected')
+    else:
+        i = 1
+        l = []
+        while tokens[index + i] != ')':
+            l.append(tokens[index + i])
+            i += 1
+        return l, (index + i + 1)
+
 
 def parse_tokens(tokens, index):
     tok = tokens[index]
@@ -53,6 +66,11 @@ def parse_tokens(tokens, index):
             return Plus(exp1, exp2), next_index + 1
         else:
             raise Exception('"+" has too many arguments')
+    elif tok == 'lambda':
+        # (lambda (arg0 arg1 ...) (body))
+        args, next_index = get_list(tokens, index + 1)
+        body, next_index = parse_tokens(tokens, next_index)
+        return Lambda(args, body), next_index + 1
     elif tok == '(':
         return parse_tokens(tokens, index+1)
     elif tok.isdigit():
@@ -80,6 +98,12 @@ def eval_in_env(exp, env):
                      + eval_in_env(exp.exp2, env).val)
     elif type(exp) == Variable:
         return eval_in_env(lookup_in_env(exp.name, env), env)
+    elif type(exp) == Lambda:
+        # when evaluated (not called) a function returns a closure
+        return Closure(env, exp.body)
+    elif type(exp) == Closure:
+        pass
+        
 
 
 # RUN INTERPRETER ======================

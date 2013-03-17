@@ -1,5 +1,5 @@
 
-from lis import Define, Plus, Variable, Const
+from lis import Define, Plus, Variable, Const, Lambda
 from lis import tokenize, parse_tokens
 
 def test_tokenize():
@@ -8,14 +8,22 @@ def test_tokenize():
     assert tokens == ['(', 'define', 'a', '3', ')']
 
 
-def test_parse_1():
+def test_parse_Define():
     source = ['(define a 3)']
     tokens = list(tokenize(source))
     exp, index = parse_tokens(tokens, 0)
     assert exp == Define(Variable('a'), Const('3'))
 
-def test_parse_2():
+
+def test_parse_Plus():
     source = ['(define a (+ 3 3))']
     tokens = list(tokenize(source))
     exp, index = parse_tokens(tokens, 0)
     assert exp == Define(Variable('a'), Plus(Const('3'), Const('3')))
+
+
+def test_parse_Lambda():
+    source = ['(lambda (x y) (+ x y))']
+    tokens = list(tokenize(source))
+    exp, index = parse_tokens(tokens, 0)
+    assert exp == Lambda(['x', 'y'], Plus(Variable('x'), Variable('y')))
