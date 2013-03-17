@@ -27,3 +27,12 @@ def test_parse_Lambda():
     tokens = list(tokenize(source))
     exp, index = parse_tokens(tokens, 0)
     assert exp == Lambda(['x', 'y'], Plus(Variable('x'), Variable('y')))
+
+
+def test_parse_Define_Lambda():
+    source = ['(define add (lambda (x y) (+ x y))']
+    tokens = list(tokenize(source))
+    exp, index = parse_tokens(tokens, 0)
+    assert exp == Define(Variable('a'),
+                         Lambda(['x', 'y'],
+                                Plus(Variable('x'), Variable('y'))))
