@@ -96,11 +96,11 @@ def eval_in_env(exp, env):
     elif type(exp) == Plus:
         return Const(eval_in_env(exp.exp1, env).val
                      + eval_in_env(exp.exp2, env).val)
-    elif type(exp) == Variable:
-        return eval_in_env(lookup_in_env(exp.name, env), env)
     elif type(exp) == Lambda:
         # when evaluated (not called) a function returns a closure
         return Closure(env, exp.body)
+    elif type(exp) == Variable:
+        return eval_in_env(lookup_in_env(exp.name, env), env)
     elif type(exp) == Closure:
         pass
         

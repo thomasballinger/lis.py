@@ -14,3 +14,8 @@ def test_eval_Variable():
     exp = Plus(Const(3), Variable('a'))
     res = eval_in_env(exp, env)
     assert res == Const(13)
+
+
+def test_eval_Closure():
+    env = [('add', Closure(['x', 'y'], Plus(Variable('x'), Variable('y'))))]
+    exp = None
