@@ -58,6 +58,30 @@ def parse_tokens(tokens):
 
 # EVALUATOR ============================
 
+def eval_in_env(exp, env):
+    if isinstance(exp, int):
+        return exp
+    elif isinstance(exp, float):
+        return exp
+    elif exp[0] == '+': # may not want a global "+" but it's useful for testing
+        args = exp[1:]
+        total = 0
+        for a in args:
+            total += eval_in_env(a, env)
+        return total
+    elif exp[0] == '<':
+        (_, x, y) = exp
+        if x < y:
+            return True
+        else:
+            return False
+    elif exp[0] == 'if':
+        (_, pred, exp_true, exp_false) = exp
+        if eval_in_env(pred, env):
+            return eval_in_env(exp_true, env)
+        else:
+            return eval_in_env(exp_false, env)
+
 
 # RUN INTERPRETER ======================
 
