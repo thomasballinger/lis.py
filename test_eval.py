@@ -19,6 +19,11 @@ def test_eval_if():
     assert eval_in_env(exp, []) == 3
 
 
+def test_eval_let():
+    exp = ['let', [['x', 3], ['y', 10]], ['+', 'x', 'y']]
+    assert eval_in_env(exp, []) == 13
+
+
 #def test_eval_Variable():
 #    env = [('a', Const(10))]
 #    exp = Plus(Const(3), Variable('a'))

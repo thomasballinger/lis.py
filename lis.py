@@ -58,10 +58,16 @@ def parse_tokens(tokens):
 
 # EVALUATOR ============================
 
+def lookup(name, env):
+    for n, v in env:
+        if n == name:
+            return v
+    raise Error('unknown variable "{}"'.format(name))
+
 def eval_in_env(exp, env):
-    if isinstance(exp, int):
-        return exp
-    elif isinstance(exp, float):
+    if isinstance(exp, str):
+        return lookup(exp, env)
+    if not isinstance(exp, list):
         return exp
     elif exp[0] == '+': # may not want a global "+" but it's useful for testing
         args = exp[1:]
@@ -81,6 +87,14 @@ def eval_in_env(exp, env):
             return eval_in_env(exp_true, env)
         else:
             return eval_in_env(exp_false, env)
+    elif exp[0] == 'let':
+        (_, pairs, e) = exp
+        new_env = env
+        for p in pairs:
+            name, val = p[0], p[1]
+            new_env = [(name, eval_in_env(val, env))] + new_env
+        return eval_in_env(e, new_env)
+
 
 
 # RUN INTERPRETER ======================
