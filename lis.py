@@ -42,7 +42,7 @@ def atom(token):
 
 def parse_tokens(tokens):
     if tokens == []:
-        raise Error('EOF')
+        raise Exception('EOF')
     tok = tokens.pop(0)
     if tok == '(':
         new_list = []
@@ -51,7 +51,7 @@ def parse_tokens(tokens):
         tokens.pop(0)
         return new_list
     elif tok == ')':
-        raise Error('Unexpected ")"')
+        raise Exception('Unexpected ")"')
     else:
         return atom(tok)
 
@@ -62,7 +62,7 @@ def lookup(name, env):
     for n, v in env:
         if n == name:
             return v
-    raise Error('unknown variable "{}"'.format(name))
+    raise Exception('unknown variable "{}"'.format(name))
 
 def eval_in_env(exp, env):
     if isinstance(exp, str):
@@ -75,9 +75,13 @@ def eval_in_env(exp, env):
         for p in params:
             total += eval_in_env(p, env)
         return total
+    elif exp[0] == '-': # may not want a global "+" but it's useful for testing
+        params = exp[1:]
+        # TODO: FIX THIS - only takes two arguments
+        return eval_in_env(params[0], env) - eval_in_env(params[1], env)
     elif exp[0] == '<':
         (_, x, y) = exp
-        if x < y:
+        if eval_in_env(x,env) < eval_in_env(y,env):
             return True
         else:
             return False
@@ -106,6 +110,7 @@ def eval_in_env(exp, env):
         # first elements is a variable (assume a function call for now)
         fname = exp[0]
         args = exp[1:]
+        args = [eval_in_env(a, env) for a in args]
         closure = lookup(fname, env) 
         (_, f, closure_env) = closure
         (_, params, body) = f

@@ -36,13 +36,18 @@ def test_eval_function():
     exp = ['add3', 10]
     assert eval_in_env(exp, env) == 13
 
-#def test_eval_Variable():
-#    env = [('a', Const(10))]
-#    exp = Plus(Const(3), Variable('a'))
-#    res = eval_in_env(exp, env)
-#    assert res == Const(13)
+
+def test_eval_function_2():
+    env = [('ifthen', ['closure', ['lambda', ['x'], ['if', True, 'x', 3]], []])]
+    exp = ['ifthen', 10]
+    assert eval_in_env(exp, env) == 10
 
 
-#def test_eval_Closure():
-#    env = [('add', Closure(['x', 'y'], Plus(Variable('x'), Variable('y'))))]
-#    exp = None
+def test_eval_recursion():
+    env = [('sumto', ['closure', ['lambda', ['n'],
+                                    ['if',  ['<', 'n', 1],
+                                            0,
+                                            ['+', 'n', ['sumto', ['-', 'n', 1]]]]],
+                                 []])]
+    exp = ['sumto', 3]
+    assert eval_in_env(exp, env) == 6
