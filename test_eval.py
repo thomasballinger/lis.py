@@ -24,6 +24,18 @@ def test_eval_let():
     assert eval_in_env(exp, []) == 13
 
 
+def test_eval_define():
+    env = []
+    exp = ['define', 'a', 3]
+    eval_in_env(exp, env)
+    assert env == [('a', 3)]
+
+
+def test_eval_function():
+    env = [('add3', ['closure', ['lambda', ['x'], ['+', 'x', 3]], []])]
+    exp = ['add3', 10]
+    assert eval_in_env(exp, env) == 13
+
 #def test_eval_Variable():
 #    env = [('a', Const(10))]
 #    exp = Plus(Const(3), Variable('a'))

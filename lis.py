@@ -70,10 +70,10 @@ def eval_in_env(exp, env):
     if not isinstance(exp, list):
         return exp
     elif exp[0] == '+': # may not want a global "+" but it's useful for testing
-        args = exp[1:]
+        params = exp[1:]
         total = 0
-        for a in args:
-            total += eval_in_env(a, env)
+        for p in params:
+            total += eval_in_env(p, env)
         return total
     elif exp[0] == '<':
         (_, x, y) = exp
@@ -94,6 +94,24 @@ def eval_in_env(exp, env):
             name, val = p[0], p[1]
             new_env = [(name, eval_in_env(val, env))] + new_env
         return eval_in_env(e, new_env)
+    elif exp[0] == 'define':
+        # just a simple mutation to modify the current env?
+        (_, name, e) = exp
+        env.insert(0, (name, eval_in_env(e, env)))
+    elif exp[0] == 'lambda':
+        # needs to return a closure
+        #(_, params, body) = exp
+        return ['closure', exp, list(env)] # ensure the env won't be mutated
+    else:
+        # first elements is a variable (assume a function call for now)
+        fname = exp[0]
+        args = exp[1:]
+        closure = lookup(fname, env) 
+        (_, f, closure_env) = closure
+        (_, params, body) = f
+        new_env = [(fname, closure)] + list(zip(params, args)) + closure_env
+        return eval_in_env(body, new_env)
+
 
 
 
