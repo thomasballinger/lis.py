@@ -40,6 +40,9 @@ def atom(token):
 
 # PARSER ===============================
 
+def programize(tokens):
+    return ['(', 'begin'] + tokens + [')']
+
 def parse_tokens(tokens):
     if tokens == []:
         raise Exception('EOF')
@@ -75,6 +78,12 @@ def eval_in_env(exp, env):
         for p in params:
             total += eval_in_env(p, env)
         return total
+    elif exp[0] == '*': # may not want a global "+" but it's useful for testing
+        params = exp[1:]
+        total = 1
+        for p in params:
+            total *= eval_in_env(p, env)
+        return total
     elif exp[0] == '-': # may not want a global "+" but it's useful for testing
         params = exp[1:]
         # TODO: FIX THIS - only takes two arguments
@@ -106,6 +115,8 @@ def eval_in_env(exp, env):
         # needs to return a closure
         #(_, params, body) = exp
         return ['closure', exp, list(env)] # ensure the env won't be mutated
+    elif exp[0] == 'display':
+        print(eval_in_env(exp[1], env))
     else:
         # first elements is a variable (assume a function call for now)
         fname = exp[0]
@@ -117,6 +128,14 @@ def eval_in_env(exp, env):
         new_env = [(fname, closure)] + list(zip(params, args)) + closure_env
         return eval_in_env(body, new_env)
 
+
+def eval_loop(program):
+    env = []
+    for exp in program:
+        if exp == 'begin':
+            continue
+        else:
+            eval_in_env(exp, env)
 
 
 
@@ -131,8 +150,8 @@ if __name__ == '__main__':
     try:
         source = open(args.source[0], 'r')
         tokens = list(tokenize(source))
-        for t in tokens:
-            print(t)
         source.close()
+        program = parse_tokens(programize(tokens))
     except:
         print('Invalid source file')
+    eval_loop(program)

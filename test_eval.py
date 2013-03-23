@@ -51,3 +51,9 @@ def test_eval_recursion():
                                  []])]
     exp = ['sumto', 3]
     assert eval_in_env(exp, env) == 6
+
+def test_eval_recursion_2():
+    env = [('factorial', ['closure', ['lambda', ['n'],
+                          ['if', ['<', 'n', 1], 1, ['*', 'n', ['factorial', ['-', 'n', 1]]]]], []])]
+    exp = ['factorial', 5]
+    assert eval_in_env(exp, env) == 120
