@@ -68,7 +68,9 @@ def lookup(name, env):
     raise Exception('unknown variable "{}"'.format(name))
 
 def eval_in_env(exp, env):
-    if isinstance(exp, str):
+    if exp == 'null':
+        return []
+    elif isinstance(exp, str):
         return lookup(exp, env)
     if not isinstance(exp, list):
         return exp
@@ -126,6 +128,20 @@ def eval_in_env(exp, env):
         return ['closure', exp, list(env)] # ensure the env won't be mutated
     elif exp[0] == 'display':
         print(eval_in_env(exp[1], env))
+    # LISTS
+    elif exp[0] == 'cons':
+        (_, a, lst) = exp
+        return [eval_in_env(a, env)] + eval_in_env(lst, env)
+    elif exp[0] == 'car':
+        (_, lst) = exp
+        return eval_in_env(lst, env)[0]
+    elif exp[0] == 'cdr':
+        (_, lst) = exp
+        return eval_in_env(lst, env)[1:]
+    elif exp[0] == 'list':
+        return [eval_in_env(a, env) for a in exp[1:]]
+    elif exp[0] == 'null?':
+        return eval_in_env(exp[1], env) == []
     else:
         # first element should be a variable pointing to a function
         # or a lambda expression
