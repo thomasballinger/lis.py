@@ -34,7 +34,12 @@ def atom(token):
         try:
             return float(token)
         except ValueError:
-            return token
+            if token == '#t':
+                return True
+            elif token == '#f':
+                return False
+            else:
+                return token
 
 
 
@@ -90,12 +95,10 @@ def eval_in_env(exp, env):
     elif exp[0] == '-':
         params = exp[1:]
         # TODO: FIX THIS - only takes two arguments
-        print(params[0], params[1])
         return eval_in_env(params[0], env) - eval_in_env(params[1], env)
     elif exp[0] == '/':
         params = exp[1:]
         # TODO: FIX THIS - only takes two arguments
-        print(params[0], params[1])
         return eval_in_env(params[0], env) / eval_in_env(params[1], env)
     elif exp[0] == '=':
         (_, x, y) = exp
@@ -106,6 +109,18 @@ def eval_in_env(exp, env):
     elif exp[0] == '>':
         (_, x, y) = exp
         return eval_in_env(x,env) > eval_in_env(y,env)
+    elif exp[0] == 'and':
+        params = exp[1:]
+        for p in params:
+            if not eval_in_env(p, env):
+                return False
+        return True
+    elif exp[0] == 'or':
+        params = exp[1:]
+        for p in params:
+            if eval_in_env(p, env):
+                return True
+        return False
     # CORE LANGUAGE
     elif exp[0] == 'if':
         (_, pred, exp_true, exp_false) = exp

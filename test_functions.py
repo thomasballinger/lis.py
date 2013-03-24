@@ -47,3 +47,27 @@ def test_gt():
     exp1 = parse_tokens(list(tokenize(source1)))
     assert eval_in_env(exp0, []) == False
     assert eval_in_env(exp1, []) == True
+
+
+def test_and_true():
+    source = ['(and (> 2 1) (= 1 1) #t)']
+    exp = parse_tokens(list(tokenize(source)))
+    assert eval_in_env(exp, []) == True
+
+
+def test_and_false():
+    source = ['(and (> 2 1) (= 1 2) #t)']
+    exp = parse_tokens(list(tokenize(source)))
+    assert eval_in_env(exp, []) == False
+
+
+def test_or_true():
+    source = ['(or (> 2 10) (= 1 1) #f)']
+    exp = parse_tokens(list(tokenize(source)))
+    assert eval_in_env(exp, []) == True
+
+
+def test_or_false():
+    source = ['(or (> 2 10) (= 1 2) #f)']
+    exp = parse_tokens(list(tokenize(source)))
+    assert eval_in_env(exp, []) == False
