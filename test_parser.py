@@ -7,6 +7,12 @@ def test_tokenize():
     tokens = list(tokenize(source))
     assert tokens == ['(', 'define', 'a', '3', ')']
 
+
+def test_tokenize2():
+    source = ['(+ 10 25 0)']
+    tokens = list(tokenize(source))
+    assert tokens == ['(', '+', '10', '25', '0', ')']
+
 # get_list()
 
 def test_parse_Define():

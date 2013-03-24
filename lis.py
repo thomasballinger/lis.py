@@ -72,28 +72,37 @@ def eval_in_env(exp, env):
         return lookup(exp, env)
     if not isinstance(exp, list):
         return exp
-    elif exp[0] == '+': # may not want a global "+" but it's useful for testing
+    elif exp[0] == '+':
         params = exp[1:]
         total = 0
         for p in params:
             total += eval_in_env(p, env)
         return total
-    elif exp[0] == '*': # may not want a global "+" but it's useful for testing
+    elif exp[0] == '*':
         params = exp[1:]
         total = 1
         for p in params:
             total *= eval_in_env(p, env)
         return total
-    elif exp[0] == '-': # may not want a global "+" but it's useful for testing
+    elif exp[0] == '-':
         params = exp[1:]
         # TODO: FIX THIS - only takes two arguments
+        print(params[0], params[1])
         return eval_in_env(params[0], env) - eval_in_env(params[1], env)
+    elif exp[0] == '/':
+        params = exp[1:]
+        # TODO: FIX THIS - only takes two arguments
+        print(params[0], params[1])
+        return eval_in_env(params[0], env) / eval_in_env(params[1], env)
+    elif exp[0] == '=':
+        (_, x, y) = exp
+        return eval_in_env(x, env) == eval_in_env(y, env)
     elif exp[0] == '<':
         (_, x, y) = exp
-        if eval_in_env(x,env) < eval_in_env(y,env):
-            return True
-        else:
-            return False
+        return eval_in_env(x,env) < eval_in_env(y,env)
+    elif exp[0] == '>':
+        (_, x, y) = exp
+        return eval_in_env(x,env) > eval_in_env(y,env)
     elif exp[0] == 'if':
         (_, pred, exp_true, exp_false) = exp
         if eval_in_env(pred, env):
