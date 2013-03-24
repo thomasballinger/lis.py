@@ -2,16 +2,10 @@
 from lis import tokenize, parse_tokens, eval_in_env
 
 
-def test_eval_Plus_Const():
+def test_eval_add_const():
     exp = ['+', 3, 4]
     res = eval_in_env(exp, [])
     assert res == 7
-
-
-def test_eval_LT():
-    exp = ['<', 2, 3]
-    res = eval_in_env(exp, [])
-    assert res == True
 
 
 def test_eval_if():
@@ -31,13 +25,13 @@ def test_eval_define():
     assert env == [('a', 3)]
 
 
-def test_eval_function():
+def test_eval_closure():
     env = [('add3', ['closure', ['lambda', ['x'], ['+', 'x', 3]], []])]
     exp = ['add3', 10]
     assert eval_in_env(exp, env) == 13
 
 
-def test_eval_function_2():
+def test_eval_closure_2():
     env = [('ifthen', ['closure', ['lambda', ['x'], ['if', True, 'x', 3]], []])]
     exp = ['ifthen', 10]
     assert eval_in_env(exp, env) == 10
