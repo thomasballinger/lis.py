@@ -57,3 +57,8 @@ def test_eval_recursion_2():
                           ['if', ['<', 'n', 1], 1, ['*', 'n', ['factorial', ['-', 'n', 1]]]]], []])]
     exp = ['factorial', 5]
     assert eval_in_env(exp, env) == 120
+
+
+def test_eval_anon():
+    exp = [['lambda', ['x'], ['+', 'x', 'x']], 7]
+    assert eval_in_env(exp, []) == 14

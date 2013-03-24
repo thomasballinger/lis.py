@@ -118,14 +118,18 @@ def eval_in_env(exp, env):
     elif exp[0] == 'display':
         print(eval_in_env(exp[1], env))
     else:
-        # first elements is a variable (assume a function call for now)
-        fname = exp[0]
+        # first element should be a variable pointing to a function
+        # or a lambda expression
+        func = exp[0]
+        closure = eval_in_env(func, env)
         args = exp[1:]
         args = [eval_in_env(a, env) for a in args]
-        closure = lookup(fname, env) 
         (_, f, closure_env) = closure
         (_, params, body) = f
-        new_env = [(fname, closure)] + list(zip(params, args)) + closure_env
+        if isinstance(func, str):
+            new_env = [(func, closure)] + list(zip(params, args)) + closure_env
+        else:
+            new_env = list(zip(params, args)) + closure_env
         return eval_in_env(body, new_env)
 
 
