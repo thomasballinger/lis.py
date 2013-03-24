@@ -74,6 +74,7 @@ def eval_in_env(exp, env):
         return lookup(exp, env)
     if not isinstance(exp, list):
         return exp
+    # FUNCTIONS
     elif exp[0] == '+':
         params = exp[1:]
         total = 0
@@ -105,6 +106,7 @@ def eval_in_env(exp, env):
     elif exp[0] == '>':
         (_, x, y) = exp
         return eval_in_env(x,env) > eval_in_env(y,env)
+    # CORE LANGUAGE
     elif exp[0] == 'if':
         (_, pred, exp_true, exp_false) = exp
         if eval_in_env(pred, env):
@@ -119,7 +121,7 @@ def eval_in_env(exp, env):
             new_env = [(name, eval_in_env(val, env))] + new_env
         return eval_in_env(e, new_env)
     elif exp[0] == 'define':
-        # just a simple mutation to modify the current env?
+        # just a simple mofification of the current env
         (_, name, e) = exp
         env.insert(0, (name, eval_in_env(e, env)))
     elif exp[0] == 'lambda':
@@ -142,6 +144,7 @@ def eval_in_env(exp, env):
         return [eval_in_env(a, env) for a in exp[1:]]
     elif exp[0] == 'null?':
         return eval_in_env(exp[1], env) == []
+    # FUNCTION EVALUATION
     else:
         # first element should be a variable pointing to a function
         # or a lambda expression
@@ -165,7 +168,6 @@ def eval_loop(program):
             continue
         else:
             eval_in_env(exp, env)
-
 
 
 # RUN INTERPRETER ======================
