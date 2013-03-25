@@ -1,7 +1,5 @@
 #! /usr/bin/env python
 
-from collections import namedtuple
-
 # LEXER ================================
 
 def split_word(word):
@@ -42,26 +40,30 @@ def atom(token):
                 return token
 
 
-
 # PARSER ===============================
 
-def programize(tokens):
-    return ['(', 'begin'] + tokens + [')']
-
 def parse_tokens(tokens):
-    if tokens == []:
-        raise Exception('EOF')
-    tok = tokens.pop(0)
-    if tok == '(':
-        new_list = []
-        while tokens[0] != ')':
-            new_list.append(parse_tokens(tokens))
-        tokens.pop(0)
-        return new_list
-    elif tok == ')':
-        raise Exception('Unexpected ")"')
-    else:
-        return atom(tok)
+    """
+    Parsing function: this relies on tokens being a generator
+    so that each token is only seen once.
+    ---------
+    Arguments:
+        tokens - a generator of tokens
+    Output:
+        A list of lists representing the syntax tree.
+    """
+    out = []
+    for t in tokens:
+        if t == '(':
+            out.append(parse_tokens(tokens))
+        elif out == [] and t == ')':
+            raise Exception('Unexpected ")"')
+        elif t == ')':
+            return out
+        else:
+            out.append(atom(t))
+    return out
+
 
 
 # EVALUATOR ============================
@@ -179,10 +181,7 @@ def eval_in_env(exp, env):
 def eval_loop(program):
     env = []
     for exp in program:
-        if exp == 'begin':
-            continue
-        else:
-            eval_in_env(exp, env)
+        eval_in_env(exp, env)
 
 
 # RUN INTERPRETER ======================
@@ -195,9 +194,9 @@ if __name__ == '__main__':
 
     try:
         source = open(args.source[0], 'r')
-        tokens = list(tokenize(source))
+        tokens = tokenize(source)
+        program = parse_tokens(tokens)
         source.close()
-        program = parse_tokens(programize(tokens))
     except:
         print('Invalid source file')
     eval_loop(program)
