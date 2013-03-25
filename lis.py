@@ -195,8 +195,8 @@ def repl():
     env = []
     while True:
         try:
-            input = raw_input('lis.py> ')
-            exp = parse_tokens(tokenize([input]))[0]
+            user_input = raw_input('lis.py> ')
+            exp = parse_tokens(tokenize([user_input]))[0]
             tmp_env = env[:]
             print(eval_in_env(exp, tmp_env))
             env = tmp_env
