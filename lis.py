@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+import argparse
 
 # LEXER ================================
 
@@ -208,7 +209,6 @@ def repl():
 # RUN INTERPRETER ======================
 
 if __name__ == '__main__':
-    import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('source', nargs = '?', default=None, help='source file')
     args = parser.parse_args()
