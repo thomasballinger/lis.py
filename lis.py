@@ -204,10 +204,9 @@ if __name__ == '__main__':
 
     if args.source:
         try:
-            source = open(args.source, 'r')
-            tokens = tokenize(source)
-            program = parse_tokens(tokens)
-            source.close()
+            with open(args.source, 'r') as source:
+                tokens = tokenize(source)
+                program = parse_tokens(tokens)
             eval_loop(program)
         except Exception as e:
             print e
