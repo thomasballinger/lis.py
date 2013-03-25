@@ -95,7 +95,6 @@ binary_functions = {'<': operator.lt,
 unary_functions = {'car': lambda li: li[0],
                    'cdr': lambda li: li[1:],
                    'null?': lambda x: x == [],
-
                   }
 
 def eval_in_env(exp, env):
@@ -107,14 +106,15 @@ def eval_in_env(exp, env):
         return exp
     # FUNCTIONS
     rator, rands = exp[0], exp[1:]
-    if not isinstance(rator, list) and rator in variatic_functions:
-        return variatic_functions[rator]([eval_in_env(rand, env) for rand in rands])
-    elif not isinstance(rator, list) and rator in binary_functions:
-        x, y = rands
-        return binary_functions[rator](eval_in_env(x, env), eval_in_env(y, env))
-    elif not isinstance(rator, list) and rator in unary_functions:
-        return unary_functions[rator](eval_in_env(rands[0], env))
-    elif rator == 'and':
+    if not isinstance(rator, list):
+        if rator in variatic_functions:
+            return variatic_functions[rator]([eval_in_env(rand, env) for rand in rands])
+        elif rator in binary_functions:
+            x, y = rands
+            return binary_functions[rator](eval_in_env(x, env), eval_in_env(y, env))
+        elif rator in unary_functions:
+            return unary_functions[rator](eval_in_env(rands[0], env))
+    if rator == 'and':
         params = rands
         for p in params:
             if not eval_in_env(p, env):
@@ -150,9 +150,6 @@ def eval_in_env(exp, env):
         return ['closure', exp, list(env)] # ensure the env won't be mutated
     elif rator == 'display':
         print(eval_in_env(exp[1], env))
-    # LISTS
-    # elif rator == 'list':
-    #     return [eval_in_env(a, env) for a in rands]
     # FUNCTION EVALUATION
     else:
         # first element should be a variable pointing to a function
