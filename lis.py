@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 import argparse
+import operator
 
 # LEXER ================================
 
@@ -75,6 +76,10 @@ def lookup(name, env):
             return v
     raise Exception('unknown variable "{}"'.format(name))
 
+variatic_functions = {'+' : sum,
+                      '*' : lambda li: reduce(operator.mul, li),
+}
+
 def eval_in_env(exp, env):
     if exp == 'null':
         return []
@@ -83,92 +88,83 @@ def eval_in_env(exp, env):
     if not isinstance(exp, list):
         return exp
     # FUNCTIONS
-    elif exp[0] == '+':
-        params = exp[1:]
-        total = 0
-        for p in params:
-            total += eval_in_env(p, env)
-        return total
-    elif exp[0] == '*':
-        params = exp[1:]
-        total = 1
-        for p in params:
-            total *= eval_in_env(p, env)
-        return total
-    elif exp[0] == '-':
-        params = exp[1:]
+    rator, rands = exp[0], exp[1:]
+    if not isinstance(rator, list) and rator in variatic_functions:
+        return variatic_functions[rator]([eval_in_env(rand, env) for rand in rands])
+    elif rator == '-':
+        params = rands
         # TODO: FIX THIS - only takes two arguments
         return eval_in_env(params[0], env) - eval_in_env(params[1], env)
-    elif exp[0] == '/':
-        params = exp[1:]
+    elif rator == '/':
+        params = rands
         # TODO: FIX THIS - only takes two arguments
         return eval_in_env(params[0], env) / eval_in_env(params[1], env)
-    elif exp[0] == '=':
+    elif rator == '=':
         (_, x, y) = exp
         return eval_in_env(x, env) == eval_in_env(y, env)
-    elif exp[0] == '<':
+    elif rator == '<':
         (_, x, y) = exp
         return eval_in_env(x,env) < eval_in_env(y,env)
-    elif exp[0] == '>':
+    elif rator == '>':
         (_, x, y) = exp
         return eval_in_env(x,env) > eval_in_env(y,env)
-    elif exp[0] == 'and':
-        params = exp[1:]
+    elif rator == 'and':
+        params = rands
         for p in params:
             if not eval_in_env(p, env):
                 return False
         return True
-    elif exp[0] == 'or':
-        params = exp[1:]
+    elif rator == 'or':
+        params = rands
         for p in params:
             if eval_in_env(p, env):
                 return True
         return False
     # CORE LANGUAGE
-    elif exp[0] == 'if':
+    elif rator == 'if':
         (_, pred, exp_true, exp_false) = exp
         if eval_in_env(pred, env):
             return eval_in_env(exp_true, env)
         else:
             return eval_in_env(exp_false, env)
-    elif exp[0] == 'let':
+    elif rator == 'let':
         (_, pairs, e) = exp
         new_env = env
         for p in pairs:
             name, val = p[0], p[1]
             new_env = [(name, eval_in_env(val, env))] + new_env
         return eval_in_env(e, new_env)
-    elif exp[0] == 'define':
+    elif rator == 'define':
         # just a simple mofification of the current env
         (_, name, e) = exp
         env.insert(0, (name, eval_in_env(e, env)))
-    elif exp[0] == 'lambda':
+    elif rator == 'lambda':
         # needs to return a closure
         #(_, params, body) = exp
         return ['closure', exp, list(env)] # ensure the env won't be mutated
-    elif exp[0] == 'display':
+    elif rator == 'display':
         print(eval_in_env(exp[1], env))
     # LISTS
-    elif exp[0] == 'cons':
+    elif rator == 'cons':
         (_, a, lst) = exp
         return [eval_in_env(a, env)] + eval_in_env(lst, env)
-    elif exp[0] == 'car':
+    elif rator == 'car':
         (_, lst) = exp
         return eval_in_env(lst, env)[0]
-    elif exp[0] == 'cdr':
+    elif rator == 'cdr':
         (_, lst) = exp
         return eval_in_env(lst, env)[1:]
-    elif exp[0] == 'list':
-        return [eval_in_env(a, env) for a in exp[1:]]
-    elif exp[0] == 'null?':
+    elif rator == 'list':
+        return [eval_in_env(a, env) for a in rands]
+    elif rator == 'null?':
         return eval_in_env(exp[1], env) == []
     # FUNCTION EVALUATION
     else:
         # first element should be a variable pointing to a function
         # or a lambda expression
-        func = exp[0]
+        func = rator
         closure = eval_in_env(func, env)
-        args = exp[1:]
+        args = rands
         args = [eval_in_env(a, env) for a in args]
         (_, f, closure_env) = closure
         (_, params, body) = f
