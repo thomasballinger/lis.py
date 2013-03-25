@@ -191,7 +191,8 @@ def repl():
         except EOFError:
             print('\nLeaving lis.py.')
             break
-        except:
+        except Exception as e:
+            print e
             print('*** Invalid input ***')
 
 # RUN INTERPRETER ======================
@@ -208,7 +209,8 @@ if __name__ == '__main__':
             program = parse_tokens(tokens)
             source.close()
             eval_loop(program)
-        except:
+        except Exception as e:
+            print e
             print('Invalid source file')
     else:
         repl()
