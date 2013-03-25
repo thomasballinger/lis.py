@@ -76,9 +76,27 @@ def lookup(name, env):
             return v
     raise Exception('unknown variable "{}"'.format(name))
 
-variatic_functions = {'+' : sum,
-                      '*' : lambda li: reduce(operator.mul, li),
-}
+variatic_functions = {'+': sum,
+                      '*': lambda li: reduce(operator.mul, li),
+                      '-': lambda li: reduce(operator.sub, li),
+                      '/': lambda li: reduce(operator.div, li),
+                      'list': lambda li: li,
+                      }
+
+binary_functions = {'<': operator.lt,
+                    '>': operator.gt,
+                    '=': operator.eq,
+                    '>=': operator.ge,
+                    '<=': operator.le,
+                    # todo: extend tests to cover le and ge
+                    'cons': lambda x, y: [x] + y,
+                    }
+
+unary_functions = {'car': lambda li: li[0],
+                   'cdr': lambda li: li[1:],
+                   'null?': lambda x: x == [],
+
+                  }
 
 def eval_in_env(exp, env):
     if exp == 'null':
@@ -91,23 +109,11 @@ def eval_in_env(exp, env):
     rator, rands = exp[0], exp[1:]
     if not isinstance(rator, list) and rator in variatic_functions:
         return variatic_functions[rator]([eval_in_env(rand, env) for rand in rands])
-    elif rator == '-':
-        params = rands
-        # TODO: FIX THIS - only takes two arguments
-        return eval_in_env(params[0], env) - eval_in_env(params[1], env)
-    elif rator == '/':
-        params = rands
-        # TODO: FIX THIS - only takes two arguments
-        return eval_in_env(params[0], env) / eval_in_env(params[1], env)
-    elif rator == '=':
-        (_, x, y) = exp
-        return eval_in_env(x, env) == eval_in_env(y, env)
-    elif rator == '<':
-        (_, x, y) = exp
-        return eval_in_env(x,env) < eval_in_env(y,env)
-    elif rator == '>':
-        (_, x, y) = exp
-        return eval_in_env(x,env) > eval_in_env(y,env)
+    elif not isinstance(rator, list) and rator in binary_functions:
+        x, y = rands
+        return binary_functions[rator](eval_in_env(x, env), eval_in_env(y, env))
+    elif not isinstance(rator, list) and rator in unary_functions:
+        return unary_functions[rator](eval_in_env(rands[0], env))
     elif rator == 'and':
         params = rands
         for p in params:
@@ -145,19 +151,8 @@ def eval_in_env(exp, env):
     elif rator == 'display':
         print(eval_in_env(exp[1], env))
     # LISTS
-    elif rator == 'cons':
-        (_, a, lst) = exp
-        return [eval_in_env(a, env)] + eval_in_env(lst, env)
-    elif rator == 'car':
-        (_, lst) = exp
-        return eval_in_env(lst, env)[0]
-    elif rator == 'cdr':
-        (_, lst) = exp
-        return eval_in_env(lst, env)[1:]
-    elif rator == 'list':
-        return [eval_in_env(a, env) for a in rands]
-    elif rator == 'null?':
-        return eval_in_env(exp[1], env) == []
+    # elif rator == 'list':
+    #     return [eval_in_env(a, env) for a in rands]
     # FUNCTION EVALUATION
     else:
         # first element should be a variable pointing to a function
