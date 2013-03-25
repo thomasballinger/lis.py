@@ -210,14 +210,17 @@ def repl():
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('source', nargs = 1, help='source text file')
+    parser.add_argument('source', nargs = '?', default=None, help='source file')
     args = parser.parse_args()
 
-    try:
-        source = open(args.source[0], 'r')
-        tokens = tokenize(source)
-        program = parse_tokens(tokens)
-        source.close()
-        eval_loop(program)
-    except:
-        print('Invalid source file')
+    if args.source:
+        try:
+            source = open(args.source, 'r')
+            tokens = tokenize(source)
+            program = parse_tokens(tokens)
+            source.close()
+            eval_loop(program)
+        except:
+            print('Invalid source file')
+    else:
+        repl()
