@@ -184,6 +184,27 @@ def eval_loop(program):
         eval_in_env(exp, env)
 
 
+# REPL =================================
+
+def repl():
+    print('****************************************')
+    print('lis.py - a simple Lisp written in Python')
+    print('(c) Nick Collins, 2013')
+    print('****************************************')
+    env = []
+    while True:
+        try:
+            input = raw_input('lis.py> ')
+            exp = parse_tokens(tokenize([input]))[0]
+            tmp_env = env[:]
+            print(eval_in_env(exp, tmp_env))
+            env = tmp_env
+        except EOFError:
+            print('\nLeaving lis.py.')
+            break
+        except:
+            print('*** Invalid input ***')
+
 # RUN INTERPRETER ======================
 
 if __name__ == '__main__':
@@ -197,6 +218,6 @@ if __name__ == '__main__':
         tokens = tokenize(source)
         program = parse_tokens(tokens)
         source.close()
+        eval_loop(program)
     except:
         print('Invalid source file')
-    eval_loop(program)
