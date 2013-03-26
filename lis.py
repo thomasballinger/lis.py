@@ -2,8 +2,9 @@
 import argparse
 import operator
 
-class LisSyntaxError(SyntaxError): pass
-class LisNameError(NameError): pass
+class LisError(Exception): pass
+class LisSyntaxError(LisError): pass
+class LisNameError(LisError): pass
 
 # LEXER ================================
 
