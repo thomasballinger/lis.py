@@ -208,7 +208,7 @@ if __name__ == '__main__':
                 tokens = tokenize(source)
                 program = parse_tokens(tokens)
             eval_loop(program)
-        except Exception as e:
+        except IOError as e:
             print e
             print('Invalid source file')
     else:
