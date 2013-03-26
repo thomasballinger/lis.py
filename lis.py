@@ -2,6 +2,9 @@
 import argparse
 import operator
 
+class LisSyntaxError(SyntaxError): pass
+class LisNameError(NameError): pass
+
 # LEXER ================================
 
 def split_word(word):
@@ -59,7 +62,7 @@ def parse_tokens(tokens):
         if t == '(':
             out.append(parse_tokens(tokens))
         elif out == [] and t == ')':
-            raise Exception('Unexpected ")"')
+            raise LisSyntaxError('Unexpected ")"')
         elif t == ')':
             return out
         else:
@@ -74,7 +77,7 @@ def lookup(name, env):
     for n, v in env:
         if n == name:
             return v
-    raise Exception('unknown variable "{}"'.format(name))
+    raise LisNameError('unknown variable "{}"'.format(name))
 
 variatic_functions = {'+': sum,
                       '*': lambda li: reduce(operator.mul, li),
